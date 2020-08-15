@@ -13,7 +13,7 @@ Vue.component("movie-search", {
   template: `<div class="container d-flex justify-content-center my-5">
 		<form class="form-inline" v-on:submit.prevent="handleSubmit">
 			<label for="search" >Search:</label>
-			<input v-on:keyup="handleSearch" type="text" class="form-control" id="search" name="search" defaultValue="Mission" />
+			<input v-on:keyup="handleSearch" type="text" class="form-control" id="search" name="search" value="Mission" />
 		</form>
 	</div>
 	`,
@@ -23,11 +23,20 @@ Vue.component("movie-search", {
     },
     handleSearch: function (event) {
       console.log(event.target.value);
+      this.$root.$refs.movielist
+        .fetchMovie(event.target.value)
+        .then((results) => {
+          this.$root.$refs.movielist.loading = false;
+          this.$root.$refs.movielist.moviesList = results;
+        })
+        .catch((e) => {
+          this.$root.$refs.movielist.errored = true;
+        });
     },
   },
 });
 
-Vue.component("movie-list", {
+Vue.component("movielist", {
   template: `<div class="container my-5 home-button">
 	<div class=" d-flex d-flex justify-content-center mb-3">
 	  <h1 class="text-slaned ">Movie List</h1>
@@ -37,7 +46,9 @@ Vue.component("movie-list", {
 	<div v-if="loading" class="loading"></div>
 	
 	<section v-if="errored">
-		<p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
+		<div class="alert alert-danger text-center" role="alert">
+			We're sorry, we're not able to retrieve this information at the moment, please try back later
+		</div>
 	</section>
 
   	<movie
@@ -48,15 +59,8 @@ Vue.component("movie-list", {
 	</div>
   </div>
 `,
-  data() {
-    return {
-      moviesList: null,
-      loading: true,
-      errored: false,
-    };
-  },
   methods: {
-    getUnique: function (arr) {
+    getUnique: async function (arr) {
       let uniqueArr = [];
       let uniqueActualArr = [];
       arr.map((arrItem) => {
@@ -74,7 +78,8 @@ Vue.component("movie-list", {
         let responseJson = await response.json();
 
         // get results
-        let results = this.getUnique(responseJson.Search);
+        let results = await this.getUnique(responseJson.Search);
+        this.errored = false;
         return results;
       } catch (e) {
         if (e) {
@@ -84,8 +89,15 @@ Vue.component("movie-list", {
       }
     },
   },
-
+  data() {
+    return {
+      moviesList: null,
+      loading: true,
+      errored: false,
+    };
+  },
   created() {
+    this.$root.$refs.movielist = this;
     this.fetchMovie().then((results) => {
       this.loading = false;
       this.moviesList = results;
@@ -102,7 +114,7 @@ Vue.component("movie", {
 	  	v-bind:detail="info"
 	  ></movie-details>	  
 	</div>
-	<a href="https://www.imdb.com/title/" target="_blank">
+	<a :href="'https://www.imdb.com/title/' +  info.imdbID" target="_blank">
 		<img v-bind:src="info.Poster" width="100" />
 	</a>	
   </div>
@@ -120,7 +132,4 @@ Vue.component("movie-details", {
 
 var app = new Vue({
   el: "#root",
-  data: {
-    message: "Hello Vue!",
-  },
 });

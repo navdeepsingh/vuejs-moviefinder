@@ -64,6 +64,11 @@
           -webkit-transform: rotate(720deg);
         }
       }
+      .logo {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+      }
       @media (max-width: 425px) {
         .movies-list > div {
           flex-direction: column;
@@ -72,10 +77,13 @@
     </style>
   </head>
   <body>
+    <div class="logo">
+      <img src="Vuejs.png" alt="" width="100" />
+    </div>
     <div id="root">
       <top-header></top-header>
       <movie-search></movie-search>
-      <movie-list></movie-list>
+      <movielist></movielist>
     </div>
     <!-- development version, includes helpful console warnings -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
