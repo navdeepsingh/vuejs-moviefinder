@@ -1,4 +1,4 @@
-const api = "http://www.omdbapi.com/?apikey=8dae9e85&type=movie&s=";
+const api = "https://www.omdbapi.com/?apikey=8dae9e85&type=movie&s=";
 
 Vue.component("top-header", {
   template: `<div class="container d-flex justify-content-center mt-5"><h1>{{title}}</h1></div>`,
